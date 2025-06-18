@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Ship } from 'lucide-react';
 import { LoginFormData, FormErrors } from '../types';
 
 const LoginForm: React.FC = () => {
@@ -12,6 +12,7 @@ const LoginForm: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string>('');
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -40,37 +41,65 @@ const LoginForm: React.FC = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setAuthError('');
     
-    // Simulate API call
+    // Simulate API call with realistic validation
     setTimeout(() => {
-      setIsLoading(false);
-      navigate('/dashboard');
+      // Demo credentials for testing
+      if (formData.email === 'demo@customsportal.com' && formData.password === 'demo123') {
+        setIsLoading(false);
+        navigate('/dashboard');
+      } else {
+        setIsLoading(false);
+        setAuthError('Invalid email or password. Try demo@customsportal.com / demo123');
+      }
     }, 1500);
   };
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Clear error when user starts typing
+    // Clear errors when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+    if (authError) {
+      setAuthError('');
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <Mail className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Ship className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your customs portal account</p>
         </div>
 
+        {/* Demo Credentials Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h4 className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials</h4>
+          <div className="text-xs text-blue-800 space-y-1">
+            <p><strong>Email:</strong> demo@customsportal.com</p>
+            <p><strong>Password:</strong> demo123</p>
+          </div>
+        </div>
+
+        {authError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center text-red-800">
+              <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="text-sm">{authError}</span>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
               Email Address
             </label>
             <div className="relative">
@@ -80,10 +109,11 @@ const LoginForm: React.FC = () => {
                 id="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                 }`}
                 placeholder="Enter your email"
+                disabled={isLoading}
               />
             </div>
             {errors.email && (
@@ -95,7 +125,7 @@ const LoginForm: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               Password
             </label>
             <div className="relative">
@@ -105,15 +135,17 @@ const LoginForm: React.FC = () => {
                 id="password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                 }`}
                 placeholder="Enter your password"
+                disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isLoading}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -128,18 +160,26 @@ const LoginForm: React.FC = () => {
 
           <div className="flex items-center justify-between">
             <label className="flex items-center">
-              <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              <input 
+                type="checkbox" 
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-colors" 
+                disabled={isLoading}
+              />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
-            <a href="#" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+            <button 
+              type="button"
+              className="text-sm text-blue-600 hover:text-blue-500 font-semibold transition-colors"
+              disabled={isLoading}
+            >
               Forgot password?
-            </a>
+            </button>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -155,9 +195,9 @@ const LoginForm: React.FC = () => {
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-500 font-medium">
+            <button className="text-blue-600 hover:text-blue-500 font-semibold transition-colors">
               Contact Administrator
-            </a>
+            </button>
           </p>
         </div>
       </div>

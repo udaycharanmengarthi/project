@@ -34,3 +34,11 @@ export interface FormErrors {
   email?: string;
   password?: string;
 }
+
+export interface Activity {
+  id: string;
+  action: string;
+  time: string;
+  type: 'success' | 'warning' | 'info';
+  filingId?: string;
+}
